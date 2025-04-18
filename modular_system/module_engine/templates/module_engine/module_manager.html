@@ -1,0 +1,68 @@
+{% extends "base.html" %} {% block content %}
+<h1>Module Manager</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Module Name</th>
+      <th>Version</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for module in modules %}
+    <tr>
+      <td>{{ module.name }}</td>
+      <td>{{ module.version }}</td>
+      <td>
+        {% if module.installed %}
+        <span class="badge bg-success">Installed</span>
+        {% if module.active %}
+        <span class="badge bg-primary">Active</span>
+        {% else %}
+        <span class="badge bg-secondary">Inactive</span>
+        {% endif %} {% else %}
+        <span class="badge bg-warning">Not Installed</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if module.installed %}
+        <form
+          action="{% url 'module_upgrade_form' module.name %}"
+          method="get"
+          style="display: inline"
+        >
+          <button type="submit">Upgrade</button>
+        </form>
+        <form method="post" style="display: inline">
+          {% csrf_token %}
+          <input type="hidden" name="module_name" value="{{ module.name }}" />
+          <button
+            type="submit"
+            name="action"
+            value="uninstall"
+            class="btn btn-sm btn-danger"
+          >
+            Uninstall
+          </button>
+        </form>
+        {% else %}
+        <form method="post" style="display: inline">
+          {% csrf_token %}
+          <input type="hidden" name="module_name" value="{{ module.name }}" />
+          <button
+            type="submit"
+            name="action"
+            value="install"
+            class="btn btn-sm btn-success"
+          >
+            Install
+          </button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

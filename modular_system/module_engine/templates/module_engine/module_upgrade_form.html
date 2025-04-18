@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Upgrade Module - {{ module.name }}{% endblock %}
+{% block content %}
+  <h2>Upgrade Module: {{ module.name }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <th>Field Name</th>
+        <th>Field Type</th>
+        <th>Update Name</th>
+        <th>Delete?</th>
+      </tr>
+      {% for field in fields %}
+        {% if not field.auto_created %}
+        <tr>
+          <td>{{ field.name }}</td>
+          <td>{{ field.get_internal_type }}</td>
+          <td><input type="text" name="update_{{ field.name }}" value="{{ field.name }}"></td>
+          <td><input type="checkbox" name="delete_{{ field.name }}"></td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+    <button type="button" onclick="openAddFieldModal()">Add New Field</button>
+    <button type="submit">Save Changes</button>
+    <a href="{% url 'module_manager' %}">Cancel</a>
+  </form>
+
+<div id="addFieldModal" style="display:none; position:fixed; top:20%; left:30%; background:#fff; border:1px solid #ccc; padding:20px; z-index:1000;">
+  <h3>Add New Field</h3>
+  <label>Field Name:</label>
+  <input type="text" id="new_field_name"><br><br>
+
+  <label>Field Type:</label>
+  <select id="new_field_type">
+    <option value="VARCHAR(255)">VARCHAR(255)</option>
+    <option value="INTEGER">INTEGER</option>
+    <option value="TEXT">TEXT</option>
+    <option value="BOOLEAN">BOOLEAN</option>
+    <option value="DATE">DATE</option>
+  </select><br><br>
+
+  <button type="button" onclick="submitNewField()">Add Field</button>
+  <button type="button" onclick="closeAddFieldModal()">Cancel</button>
+</div>
+
+<div id="modalBackdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000099; z-index:999;" onclick="closeAddFieldModal()"></div>
+<script>
+  function openAddFieldModal() {
+    document.getElementById('addFieldModal').style.display = 'block';
+    document.getElementById('modalBackdrop').style.display = 'block';
+  }
+
+  function closeAddFieldModal() {
+    document.getElementById('addFieldModal').style.display = 'none';
+    document.getElementById('modalBackdrop').style.display = 'none';
+  }
+
+  function submitNewField() {
+    const fieldName = document.getElementById('new_field_name').value;
+    const fieldType = document.getElementById('new_field_type').value;
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+
+    const csrfToken = '{{ csrf_token }}';
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    const nameInput = document.createElement('input');
+    nameInput.name = 'new_field_name';
+    nameInput.value = fieldName;
+    form.appendChild(nameInput);
+
+    const typeInput = document.createElement('input');
+    typeInput.name = 'new_field_type';
+    typeInput.value = fieldType;
+    form.appendChild(typeInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
+
+{% endblock %}

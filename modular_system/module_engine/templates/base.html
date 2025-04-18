@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    <title>{% block title %}Modular System{% endblock %}</title>
+    <style>
+      /* Basic reset and layout */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+      }
+
+      .navbar {
+        background-color: #343a40;
+        color: white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar a {
+        color: white;
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 16px;
+      }
+
+      .navbar a:hover {
+        text-decoration: underline;
+      }
+
+      .navbar .user-info {
+        display: flex;
+        align-items: center;
+        color: white;
+      }
+
+      .navbar .user-info img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .container {
+        margin-top: 30px;
+        padding: 0 20px;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .navbar a {
+          margin: 5px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">
+        <a href="/">Modular System</a>
+      </div>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="{% url 'product_list' %}">Products</a>
+        {% if request.user.is_authenticated %}
+        <span class="navbar-text me-3">
+          Welcome {{ request.user.username }} -
+          {{request.user.groups.all.first.name}}
+        </span>
+        <form action="{% url 'logout' %}" method="POST" style="display: inline">
+          {% csrf_token %}
+          <button
+            type="submit"
+            class="btn btn-link nav-link"
+            style="
+              border: none;
+              background: none;
+              color: inherit;
+              text-decoration: underline;
+              cursor: pointer;
+            "
+          >
+            Logout
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="container">{% block content %} {% endblock %}</div>
+  </body>
+</html>
